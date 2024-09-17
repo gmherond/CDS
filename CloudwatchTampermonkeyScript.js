@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Initializer
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Changes the default filter values of a cloudwatch dashboard.
 // @author       elgustav
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*

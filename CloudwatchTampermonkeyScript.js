@@ -7,6 +7,7 @@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
 // @icon         https://icon.icepanel.io/AWS/svg/Management-Governance/CloudWatch.svg
 // @grant        none
+// @downloadURL  https://raw.githubusercontent.com/gmherond/CDS/main/CloudwatchTampermonkeyScript.js
 // ==/UserScript==
 
 let loginInfoDiv=document.createElement('div');

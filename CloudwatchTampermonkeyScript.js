@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Initializer
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.0.3
+// @version      1.0.4
 // @description  Changes the default filter values of a cloudwatch dashboard.
 // @author       elgustav
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -9,6 +9,9 @@
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/gmherond/CDS/main/CloudwatchTampermonkeyScript.js
 // ==/UserScript==
+
+//Changelog 1.0.4 11/22/2024
+//-Fixed a bug where the time interval button was not being read properly.
 
 let loginInfoDiv=document.createElement('div');
 let loginInput= document.createElement("input");
@@ -49,7 +52,7 @@ function setInitialState(){
         //Time range: 12h
         getFirstElementByInnerText('button','12h').click();
         //Refresh interval: 10 seconds
-        document.getElementsByClassName('refresh-controls')[0].children[1].children[0].children[0].children[0].children[0].click();
+        document.getElementsByClassName('refresh-controls')[0].children[0].children[0].children[0].children[0].children[1].children[0].click();
         getFirstElementByInnerText('span','10 seconds').click();
 
         setTimeout(setInterval(setValue,1000),1000);

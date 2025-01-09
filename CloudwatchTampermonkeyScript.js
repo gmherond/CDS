@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.0
+// @version      1.1.1
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -13,6 +13,9 @@
 // ==/UserScript==
 
 /*
+--------------------------------------------------------------------------------------------------------------------------------
+Changelog 1.1.1 01/09/2025
+-Quick fix since Firefox was having issues.
 --------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.0 01/09/2025
 -Rewritten 90%+ of the code.
@@ -44,7 +47,7 @@ let cloudwatchAddonsHtml=`
         <div id="loginItems">
             <div id="loginContainer">
                 <label class="cwplabel" for="loginInput">Login:</label>
-                <input class="cwpinput" name="loginInput" value="${localStorage.getItem("login")}" placeholder="Type your login here" id="loginInput" oninput='localStorage.setItem("login",loginInput.value)'>
+                <input class="cwpinput" name="loginInput" value="${localStorage.getItem("login")?localStorage.getItem("login"):""}" placeholder="Type your login here" id="loginInput" oninput='localStorage.setItem("login",loginInput.value)'>
             </div>
             <div id="simpleViewToggle">
                 <label class="cwplabel" for="simpleViewInput">Simplified View</label>
@@ -176,6 +179,7 @@ let initInterval;
 let checkTitleInterval;
 let checkURLInterval;
 let setMetricsInterval;
+let copySourceInterval;
 
 saveURLInterval = setInterval(saveURL,1);
 initInterval = setInterval(init,1);
@@ -219,16 +223,25 @@ function init(){
         //Clicks the "View Source" button
         document.getElementsByClassName("dashboard-controls-actions")[0].children[0].children[0].children[2].children[1].children[0].children[0].children[0].children[1].click();
         //Sets the page zoom to 25% to display all the source code
-        //document.getElementsByClassName("source-title")[0].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style="zoom:30%;opacity:0;";
-        Array.from(document.getElementsByTagName("button")).find((e)=>e.innerText=="Copy source").click();
-        navigator.clipboard.readText().then((result)=>{
-            newDashboard(result);
-        });
-        //document.body.style="zoom:100%";
-        //Clicks the "Cancel" button
-        Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
+        document.body.style="zoom:10%";
+        //document.getElementsByClassName("source-title")[0].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style="zoom:10%;opacity:0;";
+        copySourceInterval = setInterval(getSourceCode(),1000);
         clearInterval(initInterval);
     }
+}
+
+function getSourceCode(){
+    let lines = document.getElementsByClassName("ace_content")[0].innerText;
+    if(lines.length>3){
+        if(lines[lines.length-3]=="]"){
+            //Clicks the "Cancel" button
+            Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
+            document.body.style="";
+            clearInterval(copySourceInterval);
+            newDashboard(lines);
+        }
+    }
+
 }
 
 function newDashboard(data){

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.1
+// @version      1.1.2
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -13,6 +13,13 @@
 // ==/UserScript==
 
 /*
+--------------------------------------------------------------------------------------------------------------------------------
+Changelog 1.1.2 01/10/2025
+-Added an hour equivalent of the bandwidth shown in simple view if the bandwidth is less than 1h.
+-Added an animation when the simplified view section is displayed.
+-Added a copy button to each value in simple view.
+-Changed the filtering method of metrics from includes() to endsWith() login.
+-Transition between normal view and simplified view should be faster.
 --------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.1 01/09/2025
 -Quick fix since Firefox was having issues.
@@ -47,7 +54,7 @@ let cloudwatchAddonsHtml=`
         <div id="loginItems">
             <div id="loginContainer">
                 <label class="cwplabel" for="loginInput">Login:</label>
-                <input class="cwpinput" name="loginInput" value="${localStorage.getItem("login")?localStorage.getItem("login"):""}" placeholder="Type your login here" id="loginInput" oninput='localStorage.setItem("login",loginInput.value)'>
+                <input class="cwpinput" name="loginInput" value="${localStorage.getItem("login")?localStorage.getItem("login"):""}" placeholder="Type your login here" id="loginInput" oninput='localStorage.setItem("login",loginInput.value.trim())'>
             </div>
             <div id="simpleViewToggle">
                 <label class="cwplabel" for="simpleViewInput">Simplified View</label>
@@ -57,19 +64,34 @@ let cloudwatchAddonsHtml=`
     </div>
     <div id="cwpSimpleView" ${localStorage.getItem("simpleView")=="true"?"style='display:flex'":"style='display:none'"}>
         <div id="cwpSimpleViewContainer">
-            <label id="simpleViewLogin"></label>
+            <label id="simpleViewLogin">Loading...</label>
             <div id="simpleViewMetrics">
                 <div class="simpleViewItem">
                     <label class="simpleViewLabel" id="simpleViewCountL">Throughput</label>
+                    <div class="simpleViewValues">
                     <span id="simpleViewCountV">--</span>
+                    <button class="copyBtn" onclick="navigator.clipboard.writeText(document.getElementById('simpleViewCountV').innerText)">
+                        <svg class="copyIcon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                    </button>
+                    </div>
                 </div>
                 <div class="simpleViewItem">
                     <label class="simpleViewLabel" id="simpleViewAHTL">AHT</label>
+                    <div class="simpleViewValues">
                     <span id="simpleViewAHTV">--</span>
+                    <button class="copyBtn" onclick="navigator.clipboard.writeText(document.getElementById('simpleViewAHTV').innerText)">
+                        <svg class="copyIcon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                    </button>
+                    </div>
                 </div>
                 <div class="simpleViewItem">
                     <label class="simpleViewLabel" id="simpleViewBandwidthL">Bandwidth</label>
+                    <div class="simpleViewValues">
                     <span id="simpleViewBandwidthV">--</span>
+                    <button class="copyBtn" onclick="navigator.clipboard.writeText(document.getElementById('simpleViewBandwidthV').innerText)">
+                        <svg class="copyIcon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                    </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,6 +120,7 @@ let cloudwatchAddonsStyle=`
     display:flex;
     justify-content:center;
     align-items:center;
+
 }
 
 #loginContainer,#dashboardHistory{
@@ -120,6 +143,8 @@ let cloudwatchAddonsStyle=`
     justify-content:center;
     align-items:center;
     flex-direction:column;
+    -webkit-animation: slide-in-top 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	animation: slide-in-top 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 #cwpSimpleViewContainer {
@@ -135,6 +160,7 @@ let cloudwatchAddonsStyle=`
 .simpleViewLabel{
     font-weight:bold;
     color: #0073bb;
+    margin-bottom:2rem;
 }
 
 #simpleViewLogin{
@@ -150,15 +176,95 @@ let cloudwatchAddonsStyle=`
     flex-direction:row;
 }
 
-.simpleViewItem{
-    font-size:2.5rem;
-    margin:1rem;
+.simpleViewItem {
+    font-size: 2.5rem;
+    margin: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    width: 15rem;
+    height: 8rem;
+}
+
+#simpleViewBandwidthV{
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
-    gap:3rem;
-    width:15rem;
+}
+
+#simpleViewMins{
+    font-size:1.5rem;
+}
+
+.slide-in-top {
+	-webkit-animation: slide-in-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	        animation: slide-in-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2025-1-10 15:45:6
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation slide-in-top
+ * ----------------------------------------
+ */
+@-webkit-keyframes slide-in-top {
+  0% {
+    -webkit-transform: translateY(-1000px);
+            transform: translateY(-1000px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-top {
+  0% {
+    -webkit-transform: translateY(-1000px);
+            transform: translateY(-1000px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.copyBtn {
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    transition:background-color 0.2s ease-out;
+    cursor:pointer;
+}
+.copyBtn:hover {
+    background-color: #00000044;
+}
+.copyBtn:active {
+    background-color: #008800;
+}
+
+.copyIcon{
+    width:2rem;
+    height:2rem;
+
+}
+
+.simpleViewValues{
+    display:flex;
+    justify-content:center;
+    align-items:baseline;
+    flex-direction:row;
 }
 `;
 
@@ -219,12 +325,11 @@ function saveURL(){
 function init(){
     if(Array.from(document.getElementsByClassName("cwdb-single-value-label-text")).find((e)=>e.innerText=="TasksSubmitted")){
         //Clicks the "Actions" button
-        document.getElementsByClassName("dashboard-controls-actions")[0].children[0].children[0].children[0].children[0].children[0].click();
+        Array.from(document.getElementsByTagName("button")).find((e)=>e.innerText=="Actions").click();
         //Clicks the "View Source" button
-        document.getElementsByClassName("dashboard-controls-actions")[0].children[0].children[0].children[2].children[1].children[0].children[0].children[0].children[1].click();
+        Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="View source").click();
         //Sets the page zoom to 25% to display all the source code
-        document.body.style="zoom:10%";
-        //document.getElementsByClassName("source-title")[0].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style="zoom:10%;opacity:0;";
+        document.body.style="zoom:10%;opacity:0;";
         copySourceInterval = setInterval(getSourceCode(),1000);
         clearInterval(initInterval);
     }
@@ -275,7 +380,7 @@ function newDashboard(data){
     params.widgets[4].properties.stat="Sum";
     params.widgets[4].properties.title="Total Time Spent";
 
-    console.log(params);
+    //console.log(params);
 
     CloudWatchDashboards.displayCustomDashboard(params);
     document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
@@ -284,14 +389,17 @@ function newDashboard(data){
     if(Array.from(document.getElementsByTagName("button")).find((e)=>e.innerText=="12h")){
         Array.from(document.getElementsByTagName("button")).find((e)=>e.innerText=="12h").click();
     }
-    //Refresh interval: 10 seconds
-    document.getElementsByClassName('refresh-controls')[0].children[0].children[0].children[0].children[0].children[1].children[0].click();
+    //Refresh interval
+    Array.from(document.getElementsByTagName("button")).find((e)=>e.title=="Refresh interval").click();
+    //10 seconds
     Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="10 seconds").click();
+
     let toolbar = document.getElementsByClassName("cwdb-toolbar-v2")[0];
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(cloudwatchAddonsdiv);
     document.getElementById("simpleViewInput").addEventListener("input",showSimpleView);
-    setMetricsInterval = setInterval(setSimpleViewValues,1000);
+    setMetricsInterval = setInterval(setSimpleViewValues,5000);
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(toolbar);
+    localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
     setURLs();
 }
 
@@ -306,21 +414,32 @@ function checkURLChange(){
 }
 
 function setSimpleViewValues(){
-    localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="display:none" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="display:block";
     let login = localStorage.getItem("login");
     if(login==""){
         login="not found";
     }
     document.getElementById("simpleViewLogin").innerText=login;
-    let metrics = Array.from(document.getElementsByClassName("cwdb-single-value-section")).filter((e)=>e.innerText.includes(login));
+    let metrics = Array.from(document.getElementsByClassName("cwdb-single-value-section")).filter((e)=>e.innerText.endsWith(login));
     if(metrics.length==3){
-        let throughput=metrics[0].innerText.replace(login,"").replaceAll("\n","");
-        let aht=metrics[1].innerText.replace(login,"").replaceAll("\n","");
-        let bandwidth=metrics[2].innerText.replace(login,"").replaceAll("\n","");
+        let throughput=metrics[0].innerText.replace(login,"").replaceAll("\n","").replace("no data","");
+        let aht=metrics[1].innerText.replace(login,"").replaceAll("\n","").replace("no data","");
+        let bandwidth=metrics[2].innerText.replace(login,"").replaceAll("\n","").replace("no data","");
+        if(bandwidth.endsWith("min")){
+            let time = bandwidth.replace("min","");
+            if(Number(time)){
+                bandwidth='<span id="simpleViewHours">'+(Number(time)/60).toFixed(2)+"h</span><span id='simpleViewMins'>"+bandwidth+"</span>";
+            }
+        }
         document.getElementById("simpleViewCountV").innerText=throughput;
         document.getElementById("simpleViewAHTV").innerText=aht;
-        document.getElementById("simpleViewBandwidthV").innerText=bandwidth;
+        document.getElementById("simpleViewBandwidthV").innerHTML=bandwidth;
     }
+    else if(metrics.length==0){
+        document.getElementById("simpleViewCountV").innerText="N/A";
+        document.getElementById("simpleViewAHTV").innerText="N/A";
+        document.getElementById("simpleViewBandwidthV").innerText="N/A";
+    }
+    setValue();
 }
 
 function setURLs(){
@@ -336,6 +455,7 @@ function setURLs(){
 function showSimpleView(){
     localStorage.setItem("simpleView",this.checked);
     let style = localStorage.getItem("simpleView")=="true"?'display:flex':'display:none';
+    localStorage.getItem("simpleView")=="true"?document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
     document.getElementById("cwpSimpleView").style=style;
 }
 
@@ -349,14 +469,22 @@ function checkDashboardTitle(){
 }
 
 function setValue(){
-    //old function
-    let lsLogin=localStorage.getItem("login");
+    let login=localStorage.getItem("login");
     let userValue = "";
-    if(getElementsByInnerText('div',localStorage.getItem('login')).length==0){
-        userValue="user not found";
+    if(Array.from(document.getElementsByClassName("cwdb-single-value-section")).filter((e)=>e.innerText.endsWith(login)).length==0){
+        document.title="AWS Management Console";
+        return 0;
     }
     else{
-        userValue = getElementsByInnerText('div',localStorage.getItem('login'))[1].parentElement.parentElement.parentElement.children[0].children[0].children[0].innerText;
+        let tp = Array.from(document.getElementsByClassName("cwdb-single-value-section")).filter((e)=>e.innerText.endsWith(login))[0].innerText.replace(login,"").replaceAll("\n","");
+        let bw = Array.from(document.getElementsByClassName("cwdb-single-value-section")).filter((e)=>e.innerText.endsWith(login))[2].innerText.replace(login,"").replaceAll("\n","");
+        if(bw.endsWith("min")){
+            let time = bw.replace("min","");
+            if(Number(time)){
+                bw=(Number(time)/60).toFixed(2)+"h";
+            }
+        }
+        userValue = tp + " / " + bw;
     }
     if(localStorage.getItem("login").length>0){
         document.title=localStorage.getItem("login")+": "+userValue;

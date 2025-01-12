@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.2
+// @version      1.1.3
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -12,7 +12,10 @@
 // @sandbox      MAIN_WORLD
 // ==/UserScript==
 
+console.log("Cloudwatch Extras 1.1.3");
 /*
+Changelog 1.1.3 01/11/2025
+-Fixed page blacking out.
 --------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.2 01/10/2025
 -Added an hour equivalent of the bandwidth shown in simple view if the bandwidth is less than 1h.
@@ -336,17 +339,19 @@ function init(){
 }
 
 function getSourceCode(){
-    let lines = document.getElementsByClassName("ace_content")[0].innerText;
-    if(lines.length>3){
-        if(lines[lines.length-3]=="]"){
-            //Clicks the "Cancel" button
-            Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
-            document.body.style="";
-            clearInterval(copySourceInterval);
-            newDashboard(lines);
+    if(document.getElementsByClassName("ace_content")){
+        console.log(document.getElementsByClassName("ace_content"));
+        let lines = document.getElementsByClassName("ace_content")[0].innerText;
+        if(lines.length>3){
+            if(lines[lines.length-3]=="]"){
+                //Clicks the "Cancel" button
+                Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
+                document.body.style="";
+                clearInterval(copySourceInterval);
+                newDashboard(lines);
+            }
         }
     }
-
 }
 
 function newDashboard(data){
@@ -380,7 +385,7 @@ function newDashboard(data){
     params.widgets[4].properties.stat="Sum";
     params.widgets[4].properties.title="Total Time Spent";
 
-    //console.log(params);
+    console.log(JSON.stringify(params));
 
     CloudWatchDashboards.displayCustomDashboard(params);
     document.getElementsByClassName("cwdb-dashboard-content")[0].style="";

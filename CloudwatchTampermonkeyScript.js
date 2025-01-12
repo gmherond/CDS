@@ -299,7 +299,6 @@ function saveURL(){
         if(document.getElementsByClassName("dashboard-title-text")[0].innerText.length>0){
             let dashboardTitle=document.getElementsByClassName("dashboard-title-text")[0].innerText;
             let curUrl = {url:location.href,title:dashboardTitle};
-            document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0";
             if(localStorage.getItem("urlHistory")){
 
                 let savedUrls=JSON.parse(localStorage.getItem("urlHistory"));
@@ -332,7 +331,7 @@ function init(){
         //Clicks the "View Source" button
         Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="View source").click();
         //Sets the page zoom to 25% to display all the source code
-        document.body.style="zoom:10%;opacity:0;";
+        document.body.style="zoom:10%;opacity:0.1;";
         copySourceInterval = setInterval(getSourceCode(),1000);
         clearInterval(initInterval);
     }
@@ -340,15 +339,17 @@ function init(){
 
 function getSourceCode(){
     if(document.getElementsByClassName("ace_content")){
-        console.log(document.getElementsByClassName("ace_content"));
-        let lines = document.getElementsByClassName("ace_content")[0].innerText;
-        if(lines.length>3){
-            if(lines[lines.length-3]=="]"){
-                //Clicks the "Cancel" button
-                Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
-                document.body.style="";
-                clearInterval(copySourceInterval);
-                newDashboard(lines);
+        console.log(document.getElementsByClassName("ace_content").length);
+        if(document.getElementsByClassName("ace_content")[0].innerText){
+            let lines = document.getElementsByClassName("ace_content")[0].innerText;
+            if(lines.split("\n").length>3){
+                if(lines.endsWith("]\n}")){
+                    //Clicks the "Cancel" button
+                    Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
+                    document.body.style="";
+                    clearInterval(copySourceInterval);
+                    newDashboard(lines);
+                }
             }
         }
     }
@@ -402,7 +403,7 @@ function newDashboard(data){
     let toolbar = document.getElementsByClassName("cwdb-toolbar-v2")[0];
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(cloudwatchAddonsdiv);
     document.getElementById("simpleViewInput").addEventListener("input",showSimpleView);
-    setMetricsInterval = setInterval(setSimpleViewValues,5000);
+    setMetricsInterval = setInterval(setSimpleViewValues,3000);
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(toolbar);
     localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
     setURLs();

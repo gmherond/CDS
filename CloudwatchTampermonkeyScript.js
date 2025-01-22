@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.3
+// @version      1.1.4
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -12,8 +12,12 @@
 // @sandbox      MAIN_WORLD
 // ==/UserScript==
 
-console.log("Cloudwatch Extras 1.1.3");
+console.log("Cloudwatch Extras 1.1.4");
+
 /*
+Changelog 1.1.4 01/22/2025
+-Fixed dashboard source code not copying.
+--------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.3 01/11/2025
 -Fixed page blacking out.
 --------------------------------------------------------------------------------------------------------------------------------
@@ -289,6 +293,7 @@ let checkTitleInterval;
 let checkURLInterval;
 let setMetricsInterval;
 let copySourceInterval;
+let refreshInterval;
 
 saveURLInterval = setInterval(saveURL,1);
 initInterval = setInterval(init,1);
@@ -332,7 +337,7 @@ function init(){
         Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="View source").click();
         //Sets the page zoom to 25% to display all the source code
         document.body.style="zoom:10%;opacity:0.1;";
-        copySourceInterval = setInterval(getSourceCode(),1000);
+        copySourceInterval = setInterval(getSourceCode,1000);
         clearInterval(initInterval);
     }
 }
@@ -340,17 +345,22 @@ function init(){
 function getSourceCode(){
     if(document.getElementsByClassName("ace_content")){
         console.log(document.getElementsByClassName("ace_content").length);
-        if(document.getElementsByClassName("ace_content")[0].innerText){
-            let lines = document.getElementsByClassName("ace_content")[0].innerText;
-            if(lines.split("\n").length>3){
-                if(lines.endsWith("]\n}")){
-                    //Clicks the "Cancel" button
-                    Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
-                    document.body.style="";
-                    clearInterval(copySourceInterval);
-                    newDashboard(lines);
+        try{
+            if(document.getElementsByClassName("ace_content")[0].innerText){
+                let lines = document.getElementsByClassName("ace_content")[0].innerText;
+                if(lines.split("\n").length>3){
+                    if(lines.endsWith("]\n}")){
+                        //Clicks the "Cancel" button
+                        Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="Cancel").click();
+                        document.body.style="";
+                        clearInterval(copySourceInterval);
+                        newDashboard(lines);
+                    }
                 }
             }
+        }
+        catch(e){
+            console.log(e);
         }
     }
 }
@@ -406,6 +416,10 @@ function newDashboard(data){
     setMetricsInterval = setInterval(setSimpleViewValues,3000);
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(toolbar);
     localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
+
+    document.hasFocus = function (){ return true };
+    //setTimeout(()=>{refreshInterval = setInterval(customRefresh,5000)},5000);
+
     setURLs();
 }
 
@@ -472,6 +486,10 @@ function checkDashboardTitle(){
             document.getElementsByClassName("dashboard-title-text")[0].innerText=urlHistory[urlHistory.length-1].title;
         }
     }
+}
+
+function customRefresh(){
+    Array.from(document.getElementsByTagName("button")).find((e)=>e.title=="Refresh").click();
 }
 
 function setValue(){

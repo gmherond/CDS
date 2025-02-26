@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.4
+// @version      1.1.5
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
+// @exclude      https://cw-dashboards.aka.amazon.com/cloudwatch/dashboardInternal?accountId=753462827423
 // @icon         data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1NiA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00My4wNTkyIDMxLjc3NzRDNDMuMDU5MiAyNy44NjggMzkuODU3NiAyNC42ODc2IDM1LjkyMjEgMjQuNjg3NkMzMS45ODY2IDI0LjY4NzYgMjguNzg1OSAyNy44NjggMjguNzg1OSAzMS43Nzc0QzI4Ljc4NTkgMzUuNjg2NyAzMS45ODY2IDM4Ljg2NzEgMzUuOTIyMSAzOC44NjcxQzM5Ljg1NzYgMzguODY3MSA0My4wNTkyIDM1LjY4NjcgNDMuMDU5MiAzMS43Nzc0Wk00NS4wNjk3IDMxLjc3NzRDNDUuMDY5NyAzNi43ODgxIDQwLjk2NjMgNDAuODY0MiAzNS45MjIxIDQwLjg2NDJDMzAuODc4OCA0MC44NjQyIDI2Ljc3NTQgMzYuNzg4MSAyNi43NzU0IDMxLjc3NzRDMjYuNzc1NCAyNi43NjY2IDMwLjg3ODggMjIuNjkwNSAzNS45MjIxIDIyLjY5MDVDNDAuOTY2MyAyMi42OTA1IDQ1LjA2OTcgMjYuNzY2NiA0NS4wNjk3IDMxLjc3NzRaTTUzLjUwOTcgNDUuNDczNUw0Ni41MDEyIDM5LjIwMjZDNDUuOTM1MiAzOS45OTQ1IDQ1LjI4MDggNDAuNzE3NCA0NC41NTQgNDEuMzYzNUw1MS41NTI1IDQ3LjYzMzRDNTIuMTQ5NiA0OC4xNjg3IDUzLjA3ODQgNDguMTE4NyA1My42MTgyIDQ3LjUyNTZDNTQuMTU1IDQ2LjkzMjQgNTQuMTA2OCA0Ni4wMTA4IDUzLjUwOTcgNDUuNDczNVpNMzUuOTIyMSA0Mi42NjE2QzQxLjk2NDUgNDIuNjYxNiA0Ni44ODAxIDM3Ljc3ODcgNDYuODgwMSAzMS43Nzc0QzQ2Ljg4MDEgMjUuNzc1MSA0MS45NjQ1IDIwLjg5MzEgMzUuOTIyMSAyMC44OTMxQzI5Ljg4MDYgMjAuODkzMSAyNC45NjUgMjUuNzc1MSAyNC45NjUgMzEuNzc3NEMyNC45NjUgMzcuNzc4NyAyOS44ODA2IDQyLjY2MTYgMzUuOTIyMSA0Mi42NjE2Wk01NS4xMTIgNDguODYyNkM1NC40MjY0IDQ5LjYxNjYgNTMuNDc4NSA1MCA1Mi41Mjg1IDUwQzUxLjcwMDIgNTAgNTAuODY5OSA0OS43MDg0IDUwLjIwNzUgNDkuMTE3M0w0Mi45MzA2IDQyLjU5ODdDNDAuOTA3IDQzLjg5NjggMzguNTA1NSA0NC42NTg3IDM1LjkyMjEgNDQuNjU4N0MyOC43NzE4IDQ0LjY1ODcgMjIuOTU0NSAzOC44ODAxIDIyLjk1NDUgMzEuNzc3NEMyMi45NTQ1IDI0LjY3NDYgMjguNzcxOCAxOC44OTYgMzUuOTIyMSAxOC44OTZDNDMuMDczMyAxOC44OTYgNDguODkwNiAyNC42NzQ2IDQ4Ljg5MDYgMzEuNzc3NEM0OC44OTA2IDMzLjgxNTQgNDguMzk5IDM1LjczNjYgNDcuNTQ2NiAzNy40NTEyTDU0Ljg1NTcgNDMuOTkwN0M1Ni4yNzUxIDQ1LjI2NTkgNTYuMzg5NyA0Ny40NDk3IDU1LjExMiA0OC44NjI2Wk05LjI4MDMzIDE0LjM5MjVDOS4yODAzMyAxNC45MTE4IDkuMzEyNDkgMTUuNDI5IDkuMzczODEgMTUuOTI5M0M5LjQwOSAxNi4yMTM5IDkuMzIwNTQgMTYuNDk4NSA5LjEyOTU0IDE2LjcxMzJDOC45Nzc3NSAxNi44ODM5IDguNzczNjkgMTYuOTk2OCA4LjU1MDUzIDE3LjAzNDdDNi4wNzg2NiAxNy42Njg4IDIuMDEwNDcgMTkuNTg4IDIuMDEwNDcgMjUuMzQ1N0MyLjAxMDQ3IDI5LjY5MzQgNC40MjQwNCAzMi4wOTI5IDYuNDQ5NTkgMzMuMzQxMUM3LjE0MTE5IDMzLjc3NDUgNy45NTk0NSAzNC4wMDUxIDguODIyOTUgMzQuMDE0MUwyMC45NDUxIDM0LjAyNTFMMjAuOTQzMSAzNi4wMjIyTDguODExODkgMzYuMDExMkM3LjU2NjQgMzUuOTk4MyA2LjM4NDI1IDM1LjY2MDggNS4zODQwNCAzNS4wMzQ3QzMuMzc2NTggMzMuNzk3NCAwIDMwLjg4OTcgMCAyNS4zNDU3QzAgMTguNjYyMyA0LjU5OTk1IDE2LjE5MTkgNy4zMDAwMSAxNS4zMTkyQzcuMjc5OTEgMTUuMDExNiA3LjI2OTg2IDE0LjcwMjEgNy4yNjk4NiAxNC4zOTI1QzcuMjY5ODYgOC45MzI0MyAxMC45OTgzIDMuMjY5NjMgMTUuOTQyIDEuMjIxNTlDMjEuNzI0MSAtMS4xODQ5MyAyNy44NSAwLjAwODM0NDY1IDMyLjMyNjMgNC40MTA5N0MzMy43MTM2IDUuNzc1IDM0Ljg1NDUgNy40MzE2IDM1LjczMDEgOS4zNDc4M0MzNi45MDYyIDguMzgwMjMgMzguMzU1NyA3Ljg0NiAzOS44ODM3IDcuODQ2QzQyLjg4NjMgNy44NDYgNDYuMjY1OSAxMC4xMDk3IDQ2Ljg2ODEgMTUuMDYwNkM0OS42Nzk3IDE1LjcwNDYgNTUuNjIwNiAxNy45NTU0IDU1LjYyMDYgMjUuNDIyNkM1NS42MjA2IDI4LjQwNDMgNTQuNjc5NyAzMC44NjY3IDUyLjgyMzEgMzIuNzQyTDUxLjM4OTYgMzEuMzQxQzUyLjg2MzMgMjkuODUzMiA1My42MTAyIDI3Ljg2MiA1My42MTAyIDI1LjQyMjZDNTMuNjEwMiAxOC44OTEgNDguMTA1NSAxNy4yNjY0IDQ1LjczNzIgMTYuODcxOUM0NS40Njc4IDE2LjgyNyA0NS4yMjk1IDE2LjY3NTIgNDUuMDc1NyAxNi40NTE1QzQ0LjkyNiAxNi4yMzU5IDQ0Ljg2ODcgMTUuOTcxMiA0NC45MTM5IDE1LjcxNDZDNDQuNTg1MiAxMS42NjA1IDQyLjE2MDYgOS44NDMxMSAzOS44ODM3IDkuODQzMTFDMzguNDQ3MiA5Ljg0MzExIDM3LjEwMDIgMTAuNTM4MSAzNi4xODc0IDExLjc1MDRDMzUuOTY1MyAxMi4wNDM5IDM1LjYwNDQgMTIuMTkzNyAzNS4yMzQ1IDEyLjEzOThDMzQuODY5NiAxMi4wODU5IDM0LjU2MyAxMS44MzYyIDM0LjQzNzMgMTEuNDkxN0MzMy42MTQgOS4yMjYgMzIuNDI3OSA3LjMyMDc2IDMwLjkxMiA1LjgzMDkyQzI3LjAzMjggMi4wMTU0NCAyMS43MjgxIDAuOTgwOTM3IDE2LjcxNzEgMy4wNjQ5MkMxMi41NDYzIDQuNzkyNDIgOS4yODAzMyA5Ljc2NzIyIDkuMjgwMzMgMTQuMzkyNVoiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8wXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfMF8xIiB4MT0iMjgiIHkxPSIwIiB4Mj0iMjgiIHkyPSI1MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjREIxMTY0Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0ZGNEY4QiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/gmherond/CDS/main/CloudwatchTampermonkeyScript.js
@@ -12,9 +13,12 @@
 // @sandbox      MAIN_WORLD
 // ==/UserScript==
 
-console.log("Cloudwatch Extras 1.1.4");
+console.log("Cloudwatch Extras 1.1.5");
 
 /*
+Changelog 1.1.5 02/25/2025
+-Added a function to keep track of each login's UUID to filter data with precision.
+--------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.4 01/22/2025
 -Fixed dashboard source code not copying.
 --------------------------------------------------------------------------------------------------------------------------------
@@ -396,7 +400,8 @@ function newDashboard(data){
     params.widgets[4].properties.stat="Sum";
     params.widgets[4].properties.title="Total Time Spent";
 
-    console.log(JSON.stringify(params));
+    //console.log(params);
+    storeUUIDs(params);
 
     CloudWatchDashboards.displayCustomDashboard(params);
     document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
@@ -513,4 +518,39 @@ function setValue(){
     if(localStorage.getItem("login").length>0){
         document.title=localStorage.getItem("login")+": "+userValue;
     }
+}
+
+function storeUUIDs(params){
+    let UUIDs = JSON.parse(localStorage.getItem("uuidList"));
+    if(!UUIDs){
+        UUIDs = [];
+    }
+    for(let i=0;i<params.widgets.length;i++){
+        let widget = params.widgets[i];
+        if(widget.properties.metrics){
+            for(let m = 0;m<widget.properties.metrics.length;m++){
+                let metrics = widget.properties.metrics[m];
+                let UUID = "";
+                let login = "";
+                for(let v = 0; v<metrics.length; v++){
+                    let value = metrics[v];
+                    if(value.length==36){
+                        UUID=value;
+                    }
+                    else if(value.label){
+                        login = value.label;
+                    }
+                }
+                if((login.length>0)&&(UUID.length>0)){
+                    if(!UUIDs.find((u)=>u.login==login)){
+                        UUIDs.push({login,UUID});
+                    }
+                    else{
+                        UUIDs[UUIDs.findIndex((u)=>u.login==login)].UUID = UUID;
+                    }
+                }
+            }
+        }
+    }
+    localStorage.setItem("uuidList",JSON.stringify(UUIDs));
 }

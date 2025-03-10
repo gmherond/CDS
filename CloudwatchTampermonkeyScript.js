@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cloudwatch Extras
 // @namespace    https://cw-dashboards.aka.amazon.com/cloudwatch/
-// @version      1.1.5
+// @version      1.1.7
 // @description  Changes the default view of a cloudwatch dashboard.
 // @author       elgustav@
 // @match        https://cw-dashboards.aka.amazon.com/cloudwatch/*
@@ -13,9 +13,16 @@
 // @sandbox      MAIN_WORLD
 // ==/UserScript==
 
-console.log("Cloudwatch Extras 1.1.5");
+console.log("Cloudwatch Extras 1.1.7");
 
 /*
+Changelog 1.1.7 03/06/2025
+-Removed the cloudwatch toolbar positioning code and instead used the css :has selector to give it an order of -1.
+--------------------------------------------------------------------------------------------------------------------------------
+Changelog 1.1.6 02/28/2025
+-Changed the reload function for the dashboard history select to the function location.replace()
+-Added a check to see if the script's have been removed from the document and add them again if so.
+--------------------------------------------------------------------------------------------------------------------------------
 Changelog 1.1.5 02/25/2025
 -Added a function to keep track of each login's UUID to filter data with precision.
 --------------------------------------------------------------------------------------------------------------------------------
@@ -58,7 +65,7 @@ let cloudwatchAddonsHtml=`
     <div id="cwpAddonsBar">
         <div id="dashboardHistory">
             <label class="cwplabel" for="dHistorySelect">Recent dashboards:</label>
-            <select class="cwpinput" id="dHistorySelect" name="dHistorySelect" onchange="location = this.value;">
+            <select class="cwpinput" id="dHistorySelect" name="dHistorySelect" onchange="location.replace(this.value);">
                 <option class="dHistoryOption" value="">Loading...</option>
             </select>
         </div>
@@ -111,6 +118,10 @@ let cloudwatchAddonsHtml=`
 `;
 
 let cloudwatchAddonsStyle=`
+div:has(.cwdb-toolbar-v2){
+    order:-1;
+}
+
 #cwpAddonsBar{
     display:flex;
     justify-content:left;
@@ -415,11 +426,11 @@ function newDashboard(data){
     //10 seconds
     Array.from(document.getElementsByTagName("span")).find((e)=>e.innerText=="10 seconds").click();
 
-    let toolbar = document.getElementsByClassName("cwdb-toolbar-v2")[0];
+    //let toolbar = document.getElementsByClassName("cwdb-toolbar-v2")[0];
     document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(cloudwatchAddonsdiv);
     document.getElementById("simpleViewInput").addEventListener("input",showSimpleView);
     setMetricsInterval = setInterval(setSimpleViewValues,3000);
-    document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(toolbar);
+    //document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(toolbar);
     localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
 
     document.hasFocus = function (){ return true };
@@ -431,7 +442,6 @@ function newDashboard(data){
 function checkURLChange(){
     let currentURL=location.href;
     if(currentURL!=lastURL){
-        location.reload();
         lastURL=currentURL;
         saveURLInterval = setInterval(saveURL,1);
         initInterval = setInterval(init,1);
@@ -439,6 +449,11 @@ function checkURLChange(){
 }
 
 function setSimpleViewValues(){
+    if(!document.getElementById("cwAddonsContainer")){
+        saveURL();
+        document.getElementsByClassName("cwdb-dashboard-content")[0].parentElement.prepend(cloudwatchAddonsdiv);
+        localStorage.getItem("simpleView")=="true"? document.getElementsByClassName("cwdb-dashboard-content")[0].style="opacity:0;zoom:50%;" :document.getElementsByClassName("cwdb-dashboard-content")[0].style="";
+    }
     let login = localStorage.getItem("login");
     if(login==""){
         login="not found";
